@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,23 @@ export class AppComponent implements OnInit {
 
   private fetchPosts(){
     this.http.get('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json')
+      .pipe( // we want to preprocess/transform the data so that the subscribe receives the cleaned up array of posts instead of the firebase object with the cryptic key
+        map(responseData => { // grabs response from http request which is a firebase object
+          const postsArray = [];
+          for(const key in responseData){ // will go through each firebase object, which is labeled with a cryptic key
+            if(responseData.hasOwnProperty(key)){ // good practice to do this to make sure you are not accessing the property of a prototype but technically not required
+              postsArray.push( 
+                { // accessing the nested javascript object with the actual title and content data attached to the cryptic key
+                  ...responseData[key], // the spread operator (...) will pull out all the nested key value pairs (title and content) and store them individually in this new object we are creating 
+                  id: key // also store the cryptic key as a unique id in this object so that we can access this content again in the database (like if we call get or patch perhaps and need to identify a specific post)!
+                }
+              ); // finally push this newly created object onto our postsArray                                                   
+            }
+          }
+          return postsArray; // this is now what subscribe will receive down below!
+        }
+        )
+      )
       .subscribe(posts => {
         console.log(posts);
       });
