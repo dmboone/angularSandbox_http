@@ -11,7 +11,9 @@ export class AppComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchPosts();
+  }
 
   onCreatePost(postData: { title: string; content: string }) {
     // Send Http request - angular will automatically convert our postData to json for us, which is what you normally provide in an http request (json, not a js/ts object!)
@@ -23,9 +25,17 @@ export class AppComponent implements OnInit {
 
   onFetchPosts() {
     // Send Http request
+    this.fetchPosts();
   }
 
   onClearPosts() {
     // Send Http request
+  }
+
+  private fetchPosts(){
+    this.http.get('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json')
+      .subscribe(posts => {
+        console.log(posts);
+      });
   }
 }
