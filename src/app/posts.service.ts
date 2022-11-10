@@ -2,9 +2,11 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Post } from "./post.model";
 import { map } from 'rxjs/operators';
+import { Subject } from "rxjs";
 
 @Injectable({providedIn: 'root'}) // could also provide in providers array in app.module but this is more modern approach
 export class PostsService{
+    error = new Subject<string>();
 
     constructor(private http: HttpClient){}
 
@@ -15,6 +17,8 @@ export class PostsService{
         this.http.post<{name: string}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json', postData)
         .subscribe(responseData => { // need to subscribe and get the response in order for the http request to even send in the first place; if you do not subscribe, the http request will not get sent! do not need to unsubscribe
         console.log(responseData);
+        }, error => {
+            this.error.next(error.message); // using a Subject to emit event (error message) data using next
         });
     }
 
