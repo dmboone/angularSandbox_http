@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Post } from "./post.model";
-import { map } from 'rxjs/operators';
-import { Subject } from "rxjs";
+import { map, catchError } from 'rxjs/operators';
+import { Subject, throwError } from "rxjs";
 
 @Injectable({providedIn: 'root'}) // could also provide in providers array in app.module but this is more modern approach
 export class PostsService{
@@ -39,7 +39,10 @@ export class PostsService{
             }
             return postsArray; // this is now what subscribe will receive down below!
           }
-          )
+          ),
+          catchError(errorRes => { // can also catch errors here
+            return throwError(errorRes);
+          })
         );
     }
 
