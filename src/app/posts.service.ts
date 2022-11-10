@@ -38,4 +38,8 @@ export class PostsService{
           )
         );
     }
+
+    deletePosts(){
+        return this.http.delete('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json');
+    }
 }
