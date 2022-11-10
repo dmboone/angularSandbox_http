@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Post } from './post.model';
 
 @Component({
   selector: 'app-root',
@@ -16,9 +17,9 @@ export class AppComponent implements OnInit {
     this.fetchPosts();
   }
 
-  onCreatePost(postData: { title: string; content: string }) {
+  onCreatePost(postData: Post) {
     // Send Http request - angular will automatically convert our postData to json for us, which is what you normally provide in an http request (json, not a js/ts object!)
-    this.http.post('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json', postData)
+    this.http.post<{name: string}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json', postData)
       .subscribe(responseData => { // need to subscribe and get the response in order for the http request to even send in the first place; if you do not subscribe, the http request will not get sent! do not need to unsubscribe
         console.log(responseData);
       });
@@ -34,10 +35,10 @@ export class AppComponent implements OnInit {
   }
 
   private fetchPosts(){
-    this.http.get('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json')
+    this.http.get<{[key: string]: Post}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json')
       .pipe( // we want to preprocess/transform the data so that the subscribe receives the cleaned up array of posts instead of the firebase object with the cryptic key
         map(responseData => { // grabs response from http request which is a firebase object
-          const postsArray = [];
+          const postsArray: Post[] = [];
           for(const key in responseData){ // will go through each firebase object, which is labeled with a cryptic key
             if(responseData.hasOwnProperty(key)){ // good practice to do this to make sure you are not accessing the property of a prototype but technically not required
               postsArray.push( 
