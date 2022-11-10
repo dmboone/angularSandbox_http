@@ -10,6 +10,7 @@ import { Post } from './post.model';
 })
 export class AppComponent implements OnInit {
   loadedPosts: Post[] = [];
+  isFetching = false;
 
   constructor(private http: HttpClient) {}
 
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit {
   }
 
   private fetchPosts(){
+    this.isFetching = true;
     this.http.get<{[key: string]: Post}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json')
       .pipe( // we want to preprocess/transform the data so that the subscribe receives the cleaned up array of posts instead of the firebase object with the cryptic key
         map(responseData => { // grabs response from http request which is a firebase object
@@ -54,6 +56,7 @@ export class AppComponent implements OnInit {
         )
       )
       .subscribe(posts => {
+        this.isFetching = false;
         this.loadedPosts = posts;
       });
   }
