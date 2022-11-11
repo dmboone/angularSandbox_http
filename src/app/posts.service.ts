@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Post } from "./post.model";
 import { map, catchError } from 'rxjs/operators';
@@ -23,9 +23,14 @@ export class PostsService{
     }
 
     fetchPosts(){
+        let searchParams = new HttpParams(); // creating http params
+        searchParams = searchParams.append('print', 'pretty'); // this prints the response in a nice way
+        searchParams = searchParams.append('custom', 'key');
+
         return this.http.get<{[key: string]: Post}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json',
           {
-            headers: new HttpHeaders({'Custom-Header': 'Hello'}) // can pass custom headers
+            headers: new HttpHeaders({'Custom-Header': 'Hello'}), // can pass custom headers
+            params: searchParams // can set params here as well
           }
         ) // we return this observable
         .pipe( // we want to preprocess/transform the data so that the subscribe receives the cleaned up array of posts instead of the firebase object with the cryptic key
