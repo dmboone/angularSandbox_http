@@ -64,7 +64,8 @@ export class PostsService{
     deletePosts(){
         return this.http.delete('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json',
         {
-          observe: 'events'
+          observe: 'events',
+          responseType: 'text'
         }
         ).pipe(tap(event=>{
           console.log(event);
