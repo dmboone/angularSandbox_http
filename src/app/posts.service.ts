@@ -1,7 +1,7 @@
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpEventType, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Post } from "./post.model";
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, tap } from 'rxjs/operators';
 import { Subject, throwError } from "rxjs";
 
 @Injectable({providedIn: 'root'}) // could also provide in providers array in app.module but this is more modern approach
@@ -14,7 +14,13 @@ export class PostsService{
         const postData: Post = {title: title, content: content};
 
         // Send Http request - angular will automatically convert our postData to json for us, which is what you normally provide in an http request (json, not a js/ts object!)
-        this.http.post<{name: string}>('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json', postData)
+        this.http.post<{name: string}>(
+          'https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json', 
+          postData,
+          {
+            observe: 'response' // can observe response instead of default which is body
+          }
+          )
         .subscribe(responseData => { // need to subscribe and get the response in order for the http request to even send in the first place; if you do not subscribe, the http request will not get sent! do not need to unsubscribe
         console.log(responseData);
         }, error => {
@@ -56,6 +62,15 @@ export class PostsService{
     }
 
     deletePosts(){
-        return this.http.delete('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json');
+        return this.http.delete('https://angularsandboxhttp-default-rtdb.firebaseio.com/posts.json',
+        {
+          observe: 'events'
+        }
+        ).pipe(tap(event=>{
+          console.log(event);
+          if(event.type === HttpEventType.Response){ // checks if the event is indeed the response object (should be number 4)
+            console.log(event.body);
+          }
+        }));
     }
 }
